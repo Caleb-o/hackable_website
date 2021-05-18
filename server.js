@@ -58,7 +58,7 @@ app.post('/auth', function(request, response) {
 
 				response.redirect('/landing');
 			} else {
-				response.send('Incorrect Username and/or Password!');
+				response.send('Incorrect Username and/or Password! ' + error);
 			}			
 			response.end();
 		});
