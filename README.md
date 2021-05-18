@@ -20,3 +20,6 @@ Website for a group assignment. It's meant to be bad.
 
 
 Make sure to enable apache or httpd with `systemctl`. They will need to be restarted when configuring a file.
+
+## Error Handling
+If the website is unreachable, httpd or apache may not be running. This is usually caused by a missing package, using `systemctl status apache` or `systemctl status httpd` it will display where an error occured. Try installing these packages and make sure they are uncommented in the configuration file. PHP and PHP7 are different, so they have different config files, make sure you have edited the right file :P
