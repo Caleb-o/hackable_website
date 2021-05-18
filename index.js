@@ -1,55 +1,74 @@
-// Setup button
-window.onload = function()
-{
-    document.getElementById("login").onclick = function()
-    {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
+// Set all our modules
+var mysql = require('mysql');
+var express = require('express');
+var session = require('express-session');
+var bodyParser = require('body-parser');
+var path = require('path');
 
-        //alert("user: " + username + ", password: " + password);
-        login_to_database(username, password);
-    }
-}
+// Port to listen on
+const PORT = 3000;
 
-// Require modules
-const express = require('express');
-const app = express();
-const mssql = require('mssql');
-
-// Database config
-const config = {
-    user: 'root',
-    password: 'Password1',
-    server: 'localhost',
-    database: 'user_data',
-};
-
-// Create the connection
-var connection = mssql.createConnection({
-    host: config.server,
-    user: config.user,
-    password: config.password,
-    database: config.database
+var connection = mysql.createConnection({
+	host     : 'localhost',
+	user     : 'root',
+	password : '!Password1',
+	database : 'user_data'
 });
-connection.connect();
 
-global.db = connection;
 
-function login_to_database(user, pass) 
+connection.connect(function(err)
 {
-    var message = '';
-    
-    // Assume POST
-    var sql = "SELECT * FROM login WHERE username='" + user + "' and password='" + pass +"'";
-    
-    db.query(sql, function(err, results)
-    {
-        alert("Doing query");
+    if (err) throw err;
 
-        if (results.length > 0)
-        {
-            console.log(results);
-            window.location.href = "/landing.html";
-        }
-    });
-}
+    connection.query("SELECT * FROM login", function (err, result, fields) {
+        if (err) throw err;
+      }); 
+});
+
+// Handles our requests
+var app = express();
+
+app.use(session({
+	secret: 'secret',
+	resave: true,
+	saveUninitialized: true
+}));
+app.use(bodyParser.urlencoded({extended : true}));
+app.use(bodyParser.json());
+
+// Display our html
+app.get('/', function(request, response) {
+	response.sendFile(path.join(__dirname + '/index.html'));
+});
+
+app.post('/auth', function(request, response) {
+	var username = request.body.username;
+	var password = request.body.password;
+
+	if (username && password) {
+		connection.query('SELECT * FROM login WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
+			if (results.length > 0) {
+				request.session.loggedin = true;
+				request.session.username = username;
+				response.redirect('/landing.html');
+			} else {
+				response.send('Incorrect Username and/or Password!');
+			}			
+			response.end();
+		});
+	} else {
+		response.send('Please enter Username and Password!');
+		response.end();
+	}
+});
+
+app.get('/landing.html', function(request, response) {
+	if (request.session.loggedin) {
+		response.send('Welcome back, ' + request.session.username + '!');
+	} else {
+		response.send('Please login to view this page!');
+	}
+	response.end();
+});
+
+app.listen(PORT);
