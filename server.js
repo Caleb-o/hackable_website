@@ -41,16 +41,22 @@ app.get('/', function(request, response) {
 	response.sendFile(path.join(__dirname + '/index.html'));
 });
 
+app.get('/landing', function(request, response) {
+	response.sendFile(path.join(__dirname + '/landing.html'));
+});
+
 app.post('/auth', function(request, response) {
 	var username = request.body.username;
 	var password = request.body.password;
 
 	if (username && password) {
-		connection.query('SELECT * FROM login WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
-			if (results.length > 0) {
+		connection.query("SELECT * FROM login WHERE username = '" + username + "' AND password = '" + password + "'", [], function(error, results, fields) {
+			
+			if (results && results.length > 0) {
 				request.session.loggedin = true;
 				request.session.username = username;
-				response.redirect('/landing.html');
+
+				response.redirect('/landing');
 			} else {
 				response.send('Incorrect Username and/or Password!');
 			}			
@@ -62,7 +68,7 @@ app.post('/auth', function(request, response) {
 	}
 });
 
-app.get('/landing.html', function(request, response) {
+app.get('/landing', function(request, response) {
 	if (request.session.loggedin) {
 		response.send('Welcome back, ' + request.session.username + '!');
 	} else {
