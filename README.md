@@ -3,7 +3,7 @@ Website for a group assignment. It's meant to be bad.
 
 ## Instructions (Linux)
 *NOTE: These instructions are rough guidelines to setup the project, they may not be accurate.*
-- Install `nodejs` `npm`  `apache` `PHP7` `mysql` `phpmyadmin` and `nodejs`
+- Install `nodejs` `npm`  `apache` `PHP7` `mysql` and `phpmyadmin`
     - May need extra packages like: `php7-apache`
     - Check your distribution documentation for these packages if you cannot install them
 - (Debian Based - Ubuntu, Kali etc)
